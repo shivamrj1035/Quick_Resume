@@ -1,7 +1,5 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.BadLocationException;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,15 +14,15 @@ import com.toedter.calendar.JDateChooser;
 import java.sql.*;
 
 public class Resume {
-    
+
     JFrame jf;
     // static JPanel p1;
-    JTextField fnamef, mnamef, imgpath, lnamef, phonef, emailf, dob, addr;
+    JTextField fnamef, mnamef, imgpath, lnamef, phonef, emailf, dob, addr, s5;
     private JButton img;
     BufferedWriter bw;
     JComboBox<String> s1, s2, s3, s4;
-    JProgressBar jp;
-    // private JButton gnerate;
+
+    // private JButton generate;
     JDateChooser dateChooser;
     JComboBox<String> exp;
     JComboBox<String> qly;
@@ -35,22 +33,23 @@ public class Resume {
     static long phone;
     static String email;
     static String add;
+    static String pin;
     static String sk1;
     static String sk3;
+    static String sk2;
     static String sk4;
+    static String sk5;
     static String qlyf;
     static String expr;
-    static String sk2;
-    String color = "dark";
+    static String pincode;
 
     Resume() {
-        
-        jf = new JFrame("Resume_Builder");
+        jf = new JFrame("My Resume System");
         jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         jf.setBounds(500, 50, 400, 600);
 
-        JPanel inputPanel = new JPanel(new GridLayout(18, 2));
+        JPanel inputPanel = new JPanel(new GridLayout(19, 2));
 
         inputPanel.add(new JLabel("First Name:"));
         fnamef = new JTextField();
@@ -79,8 +78,12 @@ public class Resume {
         addr = new JTextField();
         inputPanel.add(addr);
 
+        inputPanel.add(new JLabel("Pincode:"));
+        JTextField pin = new JTextField();
+        inputPanel.add(pin);
+
         inputPanel.add(new JLabel("Enter skills"));
-        inputPanel.add(new JLabel("(Minimum 3 Skills Required)"));
+        inputPanel.add(new JLabel("(minimum 3 skills required)"));
 
         String skills[] = { "-", "Java", "Python", "C++", "JavaScript", "SQL", "HTML/CSS", "Data Analysis",
                 "Problem Solving", "Other" };
@@ -97,7 +100,10 @@ public class Resume {
         inputPanel.add(new JLabel("Skill 4:"));
         s4 = new JComboBox<String>(skills);
         inputPanel.add(s4);
-
+        inputPanel.add(new JLabel("Other Skills: "));
+        JTextField s5 = new JTextField();
+        s5.setText("-");
+        inputPanel.add(s5);
         inputPanel.add(new JLabel("Education Qualification::"));
         String[] qlData = { "High School", "Bachelor's Degree", "Master's Degree", "Ph.D." };
         qly = new JComboBox<String>(qlData);
@@ -108,32 +114,7 @@ public class Resume {
         exp = new JComboBox<>(expData);
         inputPanel.add(exp);
 
-        // JButton username = new JButton("Username");
-        // JTextField usertextfield = new JTextField();
-        // username.addActionListener(new ActionListener() {
-
-        // public void actionPerformed(ActionEvent e) {
-        // try {
-        // if (fnamef.getText().equals(null)) {
-        // JOptionPane.showMessageDialog(null, "Fill all details first");
-        // // if (phonef.getText().length() != 10) {
-        // // JOptionPane.showMessageDialog(null, "Phone Number must be 10 digits");
-        // // return;
-        // // }
-        // return;
-        // } else {
-        // String uname = fnamef.getText() + "_" + phonef.getText(0, 5);
-        // usertextfield.setText(uname);
-        // }
-        // } catch (Exception ee) {
-        // System.out.println(ee.getMessage());
-        // }
-        // }
-        // });
-
-        // inputPanel.add(username);
-        // inputPanel.add(usertextfield);
-        img = new JButton("Select Image(jpg/jpeg/png)");
+        img = new JButton("Select Image(jpg/png/jpeg)");
         imgpath = new JTextField();
 
         img.addActionListener(new ActionListener() {
@@ -141,12 +122,11 @@ public class Resume {
             public void actionPerformed(ActionEvent e) {
 
                 JFileChooser imgFile = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(".*IMAGE", "jpg", "png", "jpeg");
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(".*IMAGE", "jpg", "jpeg", "png");
                 imgFile.addChoosableFileFilter(filter);
                 int rs = imgFile.showSaveDialog(null);
                 if (rs == JFileChooser.APPROVE_OPTION) {
                     File selected = imgFile.getSelectedFile();
-                    img.setText(selected.getName());
                     imgpath.setText(selected.getAbsolutePath());
                     // imgSelection.setIcon(resize(imgpath.getText()));
                 }
@@ -154,8 +134,6 @@ public class Resume {
         });
         inputPanel.add(img);
         inputPanel.add(imgpath);
-        // JOptionPane.showConfirmDialog(null, "Want to create Resume ?", "Resume
-        // Builder", JOP)
 
         JButton generButton = new JButton("GENERATE");
         generButton.addActionListener(new ActionListener() {
@@ -164,6 +142,7 @@ public class Resume {
                     fname = fnamef.getText();
                     mname = mnamef.getText();
                     lname = lnamef.getText();
+                    // Mon Oct 02 00:00:00 IST 2023(getDate Format)
                     String temp[] = dateChooser.getDate().toString().trim().split(" ");
 
                     date = temp[2] + "/" + temp[1] + "/" + temp[5] + ", " + temp[0];
@@ -175,55 +154,65 @@ public class Resume {
                     phone = Long.parseLong(phonef.getText());
 
                     email = emailf.getText();
+                    pincode = pin.getText();
+                    long tempp = Long.parseLong(pincode);
 
+                    if (pincode.length() != 6) {
+                        JOptionPane.showMessageDialog(null, "Pin code length must be 6", "Error",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
                     add = addr.getText();
 
                     sk1 = (String) s1.getSelectedItem();
                     sk2 = (String) s2.getSelectedItem();
                     sk3 = (String) s3.getSelectedItem();
                     sk4 = (String) s4.getSelectedItem();
+                    sk5 = s5.getText();
 
                     if (sk1.equals(sk2) || sk1.equals(sk3) || sk1.equals(sk4)) {
-                        JOptionPane.showMessageDialog(null, "Invalid Case: Same skills are not valid case");
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Case: Same skills and less than 3 skills are not valid case");
                         return;
                     }
                     if (sk2.equals(sk1) || sk2.equals(sk3) || sk2.equals(sk4)) {
-                        JOptionPane.showMessageDialog(null, "Invalid Case: Same skills are not valid case");
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Case: Same skills and less than 3 skills are not valid case");
                         return;
                     }
                     if (sk3.equals(sk2) || sk3.equals(sk1) || sk3.equals(sk4)) {
-                        JOptionPane.showMessageDialog(null, "Invalid Case: Same skills are not valid case");
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Case: Same skills and less than 3 skills are not valid case");
                         return;
                     }
                     if (sk4.equals(sk2) || sk4.equals(sk3) || sk4.equals(sk1)) {
-                        JOptionPane.showMessageDialog(null, "Invalid Case: Same skills are not valid case");
+                        JOptionPane.showMessageDialog(null,
+                                "Invalid Case: Same skills and less than 3 skills are not valid case");
                         return;
                     }
 
                     qlyf = (String) qly.getSelectedItem();
 
                     expr = (String) exp.getSelectedItem();
-                    if (fname != null && lname != null && date != null ) {
+                    if (fname != null && lname != null && date != null) {
+                        addToSQLDatabase();// set dta to sql database
 
-                        // addToSQLDatabase();// set dta to sql database
+                        addToPGDatabase();// set to postgre
 
-                        // addToPGDatabase();// set to postgre
+                        writeIntoTXT();// text file generating
 
-                        // writeIntoTXT();// text file generating
-
-                        // writeTOPDF();// pdf file
+                        writeTOPDF();// pdf file
                     } else {
                         JOptionPane.showMessageDialog(null, "Fill all fields", "Attention..!!",
                                 JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
-                    JOptionPane.showMessageDialog(null, "Resume Generated..!!");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Fill all details first");
+                    System.out.println("Exception Occured: " + ex.getMessage());
+                    return;
                 }
             }
         });
-        inputPanel.add(generButton);
 
         JButton clear = new JButton("CLEAR");
         clear.addActionListener(new ActionListener() {
@@ -242,85 +231,56 @@ public class Resume {
                 qly.setSelectedItem("High School");
                 exp.setSelectedItem("Fresher");
                 imgpath.setText("");
+                s5.setText("-");
+                pin.setText("");
                 // s1.set
                 addr.setText("");
 
             }
         });
-        // button for change color of input panel
-        JButton themebutton = new JButton("Dark Mode");
-        themebutton.addActionListener(new ActionListener() {
+        JButton DarkTheme = new JButton("Dark Mode");
+        DarkTheme.addActionListener(new ActionListener() {
+            int flag = 0;
+            
             public void actionPerformed(ActionEvent e) {
-                if (color == "dark") {
-                    themebutton.setText("Light Mode");
+                if (flag == 0) {
                     inputPanel.setBackground(Color.GRAY);
-                    
-                    color = "white";
-                } else if (color == "white") {
-                    themebutton.setText("Dark Mode");
+                    DarkTheme.setText("Light Mode");
+                    flag=1;
+                }else{
                     inputPanel.setBackground(Color.WHITE);
-                    
-                    
-                    color = "dark";
+                    DarkTheme.setText("Dark Mode");
+                    flag=0;
+
                 }
             }
         });
-
         inputPanel.add(clear);
-        inputPanel.add(themebutton);
-
-        // inputPanel.add(clear);
-        // inputPanel.add(generButton);
-        // inputPanel.add(WhiteTheme);
-        // button for change color of input panel
-        JButton adminbutton = new JButton("Admin Contact");
-        adminbutton.addActionListener(new ActionListener() {
+        inputPanel.add(generButton);
+        JButton Admin = new JButton("Admin Contact");
+        Admin.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                ImageIcon img=new ImageIcon("D://SHIVAM.jpg");
-                JFrame imageframe=new JFrame("Admin Contact:");
-                imageframe.setBounds(400, 100, 400, 600);
-                JLabel label=new JLabel(img);
-                imageframe.add(label);
-                imageframe.pack();
-                imageframe.setVisible(true);
+                JFrame contact =new JFrame();
+                ImageIcon img=new ImageIcon("D://Programs//Resume//admin2.jpg");
+                
+                JLabel jl=new JLabel(img);
+                contact.add(jl);
+                contact.pack();
+                contact.setBounds(400, 100, 500, 600);
+                contact.setVisible(true);
             }
         });
-        inputPanel.add(adminbutton);
+        inputPanel.add(clear);
+        inputPanel.add(generButton);
+        inputPanel.add(DarkTheme);
+        inputPanel.add(Admin);
+
         jf.add(inputPanel);
         jf.setVisible(true);
     }
 
-    public static void process() {
-        JFrame j2 = new JFrame("Processing for generating Resume..!!");
-        j2.setLayout(new FlowLayout());
-        j2.setBounds(500, 300, 300, 100);
-        
-        j2.setVisible(true);
-        
-        JProgressBar jp = new JProgressBar(0, 100);
-        j2.add(jp);
-        jp.setStringPainted(true);
-        
-        for(int i=0;i<=100;i+=2){
-            jp.setValue(i);
-            jp.setString("Progress "+i+"% ");
-            if(i>20 && i<=50){
-                jp.setString("Setting GUI...");
-            }
-            if(i>50 && i<=70){
-                jp.setString("Setting Database...");
-            }
-            if(i>80 && i<=95){
-                jp.setString("About to launch");
-            }
-            try {
-                Thread.sleep(200);
-            } catch (Exception progresse) {
-                System.out.println(progresse.getMessage());
-            }}
-        }
-        
-        // Generate TXT file
+    // Generate TXT file
+
     public void writeIntoTXT() throws Exception {
         try {
             String path = "D://Resume_Data";
@@ -328,9 +288,9 @@ public class Resume {
             if (!f.exists()) {
                 f.mkdirs();
             }
-
+            String nametxt = path + "//" + fnamef.getText() + "_" + phonef.getText(0, 5) + "_Resume.txt";
             bw = new BufferedWriter(
-                    new FileWriter(path + "//" + fnamef.getText() + "_" + phonef.getText(0, 5) + "_Resume.txt"));
+                    new FileWriter(nametxt));
             bw.write("_____________________________________________________________________________\n");
             bw.write("FULL NAME: " + fnamef.getText() + " " + mnamef.getText() + " " + lnamef.getText());
             // Mon Oct 02 00:00:00 IST 2023(getDate Format)
@@ -361,13 +321,20 @@ public class Resume {
             bw.newLine();
             bw.write("-" + (String) s4.getSelectedItem());
             bw.newLine();
+            if (sk5 != "-") {
+                bw.write("-" + sk5);
+                bw.newLine();
+            }
             bw.write("Qualification" + (String) qly.getSelectedItem());
+            bw.newLine();
+            bw.write("PIN CODE" + pincode);
             bw.newLine();
             bw.write(" Experience: " + (String) exp.getSelectedItem());
             bw.newLine();
             bw.write("_____________________________________________________________________________");
 
             bw.flush();
+            JOptionPane.showMessageDialog(null, "CV was successfully generated as txt at " + nametxt);
 
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(null, "File not found Exception Occured", "Attention",
@@ -376,14 +343,12 @@ public class Resume {
             JOptionPane.showMessageDialog(null, "IO Exception Occured", "Attention", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
-    // add all details to Postgre Database
-
+    
     public void addToPGDatabase() {
         Connection con = null;
         try {
             Class.forName("org.postgresql.Driver");// postgre driver name
-            con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/candidates_data", "postgres", "sp1024");
+            con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/candidates_data", "postgres", "SP1024");
             if (con != null) {
                 System.out.println(" pgAdmin Connection is Ok");
             } else
@@ -478,29 +443,32 @@ public class Resume {
             }
 
             String namePDF = path + "//" + fnamef.getText().toLowerCase() + "_" + phonef.getText(0, 5) + ".pdf";
+
             Document doc = new Document();
             PdfWriter.getInstance(doc, new FileOutputStream(namePDF));
+
             doc.open();
+
             com.itextpdf.text.Image imgd = com.itextpdf.text.Image.getInstance(imgpath.getText());
-            imgd.setAbsolutePosition(473f, 750f);
+
+            imgd.setAbsolutePosition(473f, 750f);// set position on page give float arguments
+
             imgd.scaleAbsolute(80f, 70f);
             // doc.add(imgd);
             doc.add(imgd);
             doc.add(new Paragraph("Name: " + fnamef.getText() + " " + mnamef.getText() + " " + lnamef.getText()));
             doc.add(new Paragraph(" "));
-            doc.add(new Paragraph(" "));
+            // doc.add(new Paragraph(" "));
             doc.add(new Paragraph("CONTACT DETAILS"));
-
             doc.add(new Paragraph("Phone No:     " + phonef.getText()));
-
             doc.add(new Paragraph("E-Mail:    " + emailf.getText()));
-
             doc.add(new Paragraph("Address:       " + addr.getText()));
+            doc.add(new Paragraph("Pin code:       " + pincode));
 
             String temp[] = dateChooser.getDate().toString().trim().split(" ");
             String date = temp[2] + "/" + temp[1] + "/" + temp[5] + ", " + temp[0];
+
             doc.add(new Paragraph("DOB:       " + date));
-            // doc.add(new Paragraph(" "));
             doc.add(new Paragraph(" "));
             doc.add(new Paragraph(" "));
 
@@ -513,6 +481,8 @@ public class Resume {
             table.addCell((String) s2.getSelectedItem());
             table.addCell((String) s3.getSelectedItem());
             table.addCell((String) s4.getSelectedItem());
+            table.addCell("Other SKill: ");
+            table.addCell(sk5);
             doc.add(table);
             doc.add(new Paragraph(" "));
             doc.add(new Paragraph(" "));
@@ -527,7 +497,7 @@ public class Resume {
             doc.add(new Paragraph("WORK EXPERIENCE"));
             doc.add(new Paragraph((String) exp.getSelectedItem()));
             doc.close();
-            JOptionPane.showMessageDialog(null, "CV was successfully generated as PDF at " + namePDF);
+            JOptionPane.showMessageDialog(null, "CV was successfully generated as pdf at " + namePDF);
 
         } catch (DocumentException pdfex) {
             JOptionPane.showMessageDialog(null, pdfex.getMessage());
@@ -535,7 +505,6 @@ public class Resume {
     }
 
     public static void main(String[] args) {
-        // Resume.process();
         new Resume();
     }
 }
